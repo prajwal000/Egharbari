@@ -14,9 +14,9 @@ export async function POST(request: NextRequest) {
         const { name, email, password, phone } = body;
 
         // Validation
-        if (!name || !email || !password) {
+        if (!name || !email || !password || !phone) {
             return NextResponse.json(
-                { error: 'Name, email, and password are required' },
+                { error: 'Name, email, phone, and password are required' },
                 { status: 400 }
             );
         }

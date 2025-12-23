@@ -13,7 +13,7 @@ export interface IUser extends Document {
     name: string;
     email: string;
     password: string;
-    phone?: string;
+    phone: string;
     role: UserRole;
     isActive: boolean;
     avatar?: string;
@@ -53,6 +53,7 @@ const UserSchema: Schema<IUser> = new Schema(
         },
         phone: {
             type: String,
+            required: [true, 'Phone number is required'],
             trim: true,
             match: [/^(\+977)?[0-9]{10}$/, 'Please enter a valid Nepal phone number'],
         },

@@ -80,9 +80,9 @@ export async function POST(request: NextRequest) {
         const { name, email, phone, subject, message, type, propertyId } = body;
 
         // Validation
-        if (!name || !email || !subject || !message) {
+        if (!name || !email || !phone || !subject || !message) {
             return NextResponse.json(
-                { error: 'Name, email, subject, and message are required' },
+                { error: 'Name, email, phone, subject, and message are required' },
                 { status: 400 }
             );
         }

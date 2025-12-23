@@ -146,13 +146,13 @@ export default function UserInquiriesPage() {
                     </Link>
                 </div>
             ) : (
-                <div className="grid lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     {/* Inquiries List */}
                     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                         <div className="p-4 border-b border-gray-100">
                             <h2 className="font-semibold text-gray-900">All Inquiries ({pagination.total})</h2>
                         </div>
-                        <div className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto">
+                        <div className="divide-y divide-gray-100 max-h-[350px] sm:max-h-[400px] lg:max-h-[500px] overflow-y-auto">
                             {inquiries.map((inquiry) => (
                                 <div
                                     key={inquiry._id}
@@ -241,7 +241,7 @@ export default function UserInquiriesPage() {
                                 </div>
 
                                 {/* Conversation */}
-                                <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[350px]">
+                                <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 max-h-[250px] sm:max-h-[300px] lg:max-h-[350px]">
                                     {/* Original Message */}
                                     <div className="bg-gray-100 rounded-xl p-4">
                                         <div className="flex items-center gap-2 mb-2">
@@ -295,19 +295,19 @@ export default function UserInquiriesPage() {
 
                                 {/* Reply Input */}
                                 {selectedInquiry.status !== InquiryStatus.CLOSED && (
-                                    <div className="p-4 border-t border-gray-100">
-                                        <div className="flex gap-3">
+                                    <div className="p-3 sm:p-4 border-t border-gray-100">
+                                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                                             <textarea
                                                 value={replyMessage}
                                                 onChange={(e) => setReplyMessage(e.target.value)}
-                                                placeholder="Add additional information or ask a follow-up question..."
-                                                rows={3}
-                                                className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#9ac842] focus:border-transparent outline-none resize-none"
+                                                placeholder="Add additional information..."
+                                                rows={2}
+                                                className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#9ac842] focus:border-transparent outline-none resize-none text-sm sm:text-base"
                                             />
                                             <button
                                                 onClick={handleSendReply}
                                                 disabled={!replyMessage.trim() || sendingReply}
-                                                className="px-6 py-3 bg-gradient-to-r from-[#9ac842] to-[#36c2d9] text-white font-semibold rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed self-end"
+                                                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-[#9ac842] to-[#36c2d9] text-white font-semibold rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed sm:self-end flex items-center justify-center gap-2"
                                             >
                                                 {sendingReply ? (
                                                     <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -315,9 +315,12 @@ export default function UserInquiriesPage() {
                                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                     </svg>
                                                 ) : (
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                                    </svg>
+                                                    <>
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                                        </svg>
+                                                        <span className="sm:hidden">Send</span>
+                                                    </>
                                                 )}
                                             </button>
                                         </div>
@@ -331,7 +334,7 @@ export default function UserInquiriesPage() {
                                 )}
                             </div>
                         ) : (
-                            <div className="h-full flex items-center justify-center text-gray-500 p-8 min-h-[400px]">
+                            <div className="h-full flex items-center justify-center text-gray-500 p-6 sm:p-8 min-h-[300px] sm:min-h-[400px]">
                                 <div className="text-center">
                                     <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />

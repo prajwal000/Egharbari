@@ -52,7 +52,7 @@ export default function RegisterPage() {
                 body: JSON.stringify({
                     name: formData.name,
                     email: formData.email,
-                    phone: formData.phone || undefined,
+                    phone: formData.phone,
                     password: formData.password,
                 }),
             });
@@ -149,7 +149,7 @@ export default function RegisterPage() {
                                 htmlFor='phone'
                                 className='block text-sm font-semibold text-gray-700 mb-2'
                             >
-                                Phone Number (Optional)
+                                Phone Number *
                             </label>
                             <input
                                 type='tel'
@@ -157,6 +157,7 @@ export default function RegisterPage() {
                                 name='phone'
                                 value={formData.phone}
                                 onChange={handleChange}
+                                required
                                 className='w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#9ac842] focus:border-transparent transition-all outline-none'
                                 placeholder='+977 9801234567'
                             />
