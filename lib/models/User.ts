@@ -14,6 +14,7 @@ export interface IUser extends Document {
     email: string;
     password: string;
     phone: string;
+    address?: string;
     role: UserRole;
     isActive: boolean;
     avatar?: string;
@@ -56,6 +57,11 @@ const UserSchema: Schema<IUser> = new Schema(
             required: [true, 'Phone number is required'],
             trim: true,
             match: [/^(\+977)?[0-9]{10}$/, 'Please enter a valid Nepal phone number'],
+        },
+        address: {
+            type: String,
+            trim: true,
+            maxlength: [200, 'Address cannot exceed 200 characters'],
         },
         role: {
             type: String,

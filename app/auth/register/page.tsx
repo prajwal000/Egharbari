@@ -11,6 +11,7 @@ export default function RegisterPage() {
         name: '',
         email: '',
         phone: '',
+        address: '',
         password: '',
         confirmPassword: '',
     });
@@ -160,6 +161,24 @@ export default function RegisterPage() {
                                 required
                                 className='w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#9ac842] focus:border-transparent transition-all outline-none'
                                 placeholder='+977 9801234567'
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor='address'
+                                className='block text-sm font-semibold text-gray-700 mb-2'
+                            >
+                                Address (Optional)
+                            </label>
+                            <input
+                                type='text'
+                                id='address'
+                                name='address'
+                                value={formData.address}
+                                onChange={handleChange}
+                                className='w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#9ac842] focus:border-transparent transition-all outline-none'
+                                placeholder='Your address in Nepal'
                             />
                         </div>
 

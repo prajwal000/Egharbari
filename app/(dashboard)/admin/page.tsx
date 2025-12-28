@@ -2,13 +2,15 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { UserRole } from '@/lib/types/user';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const [userStats, setUserStats] = useState({ total: 0, totalAdmins: 0, totalUsers: 0, recentUsers: [] });
+    const [loading, setLoading] = useState(true);
 
     // Double-check admin access on client side
     useEffect(() => {
@@ -17,7 +19,28 @@ export default function AdminDashboard() {
         }
     }, [status, session, router]);
 
-    if (status === 'loading') {
+    // Fetch user statistics
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await fetch('/api/users/stats');
+                const data = await response.json();
+                if (response.ok) {
+                    setUserStats(data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch user stats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        if (status === 'authenticated' && session?.user?.role === UserRole.ADMIN) {
+            fetchStats();
+        }
+    }, [status, session]);
+
+    if (status === 'loading' || loading) {
         return (
             <div className='flex items-center justify-center h-64'>
                 <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-[#9ac842]'></div>
@@ -30,17 +53,13 @@ export default function AdminDashboard() {
     }
 
     const stats = [
-        { label: 'Total Users', value: '1,234', change: '+12%', icon: '👥', color: 'from-blue-500 to-cyan-500' },
+        { label: 'Total Users', value: userStats.total.toString(), change: '+12%', icon: '👥', color: 'from-blue-500 to-cyan-500' },
         { label: 'Active Listings', value: '567', change: '+8%', icon: '🏠', color: 'from-green-500 to-emerald-500' },
         { label: 'Pending Inquiries', value: '23', change: '-5%', icon: '📩', color: 'from-orange-500 to-amber-500' },
         { label: 'Revenue (NPR)', value: '12.5L', change: '+24%', icon: '💰', color: 'from-purple-500 to-pink-500' },
     ];
 
-    const recentUsers = [
-        { id: 1, name: 'Rajesh Sharma', email: 'rajesh@example.com', role: 'user', date: '2 hours ago' },
-        { id: 2, name: 'Sita Thapa', email: 'sita@example.com', role: 'user', date: '5 hours ago' },
-        { id: 3, name: 'Bikram Rai', email: 'bikram@example.com', role: 'admin', date: '1 day ago' },
-    ];
+    const recentUsers = userStats.recentUsers.slice(0, 3);
 
     const recentProperties = [
         { id: 1, title: 'Luxury Villa in Kathmandu', owner: 'Rajesh S.', status: 'pending', date: '1 hour ago' },
@@ -100,34 +119,40 @@ export default function AdminDashboard() {
                         </Link>
                     </div>
                     <div className='space-y-4'>
-                        {recentUsers.map((user) => (
-                            <div
-                                key={user.id}
-                                className='flex items-center justify-between p-4 rounded-xl bg-gray-50'
-                            >
-                                <div className='flex items-center gap-3'>
-                                    <div className='w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-white font-bold'>
-                                        {user.name.charAt(0)}
+                        {recentUsers.length > 0 ? (
+                            recentUsers.map((user: any) => (
+                                <div
+                                    key={user._id}
+                                    className='flex items-center justify-between p-4 rounded-xl bg-gray-50'
+                                >
+                                    <div className='flex items-center gap-3'>
+                                        <div className='w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-white font-bold'>
+                                            {user.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className='font-semibold text-gray-900'>{user.name}</p>
+                                            <p className='text-xs text-gray-500'>{user.email}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className='font-semibold text-gray-900'>{user.name}</p>
-                                        <p className='text-xs text-gray-500'>{user.email}</p>
+                                    <div className='text-right'>
+                                        <span
+                                            className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                                                user.role === 'admin'
+                                                    ? 'bg-purple-100 text-purple-700'
+                                                    : 'bg-gray-100 text-gray-700'
+                                            }`}
+                                        >
+                                            {user.role}
+                                        </span>
+                                        <p className='text-xs text-gray-500 mt-1'>
+                                            {new Date(user.createdAt).toLocaleDateString()}
+                                        </p>
                                     </div>
                                 </div>
-                                <div className='text-right'>
-                                    <span
-                                        className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                                            user.role === 'admin'
-                                                ? 'bg-purple-100 text-purple-700'
-                                                : 'bg-gray-100 text-gray-700'
-                                        }`}
-                                    >
-                                        {user.role}
-                                    </span>
-                                    <p className='text-xs text-gray-500 mt-1'>{user.date}</p>
-                                </div>
-                            </div>
-                        ))}
+                            ))
+                        ) : (
+                            <p className='text-center text-gray-500 py-8'>No users yet</p>
+                        )}
                     </div>
                 </div>
 

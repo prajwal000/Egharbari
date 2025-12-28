@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
         await dbConnect();
 
         const body = await request.json();
-        const { name, email, password, phone } = body;
+        const { name, email, password, phone, address } = body;
 
         // Validation
         if (!name || !email || !password || !phone) {
@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
             email: email.toLowerCase(),
             password,
             phone,
+            address: address || undefined,
             role: UserRole.USER,
         });
 

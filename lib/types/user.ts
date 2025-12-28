@@ -14,6 +14,7 @@ export interface UserData {
     name: string;
     email: string;
     phone: string;
+    address?: string;
     role: UserRole;
     isActive: boolean;
     avatar?: string;
