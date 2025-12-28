@@ -13,10 +13,7 @@ interface SidebarProps {
 
 const userNavItems = [
     { name: 'Dashboard', href: '/dashboard', icon: 'home' },
-    { name: 'My Properties', href: '/dashboard/properties', icon: 'building' },
     { name: 'My Inquiries', href: '/dashboard/inquiries', icon: 'inquiry' },
-    { name: 'Saved', href: '/dashboard/saved', icon: 'heart' },
-    { name: 'Messages', href: '/dashboard/messages', icon: 'message' },
     { name: 'Profile', href: '/dashboard/profile', icon: 'user' },
 ];
 
