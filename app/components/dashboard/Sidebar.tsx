@@ -14,7 +14,6 @@ interface SidebarProps {
 const userNavItems = [
     { name: 'Dashboard', href: '/dashboard', icon: 'home' },
     { name: 'My Inquiries', href: '/dashboard/inquiries', icon: 'inquiry' },
-    { name: 'Profile', href: '/dashboard/profile', icon: 'user' },
 ];
 
 const adminNavItems = [

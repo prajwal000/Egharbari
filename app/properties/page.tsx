@@ -142,9 +142,9 @@ export default function PropertiesPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 ">
             {/* Hero Section */}
-            <div className="bg-gradient-to-r from-[#9ac842] to-[#36c2d9] py-16 px-4">
+            <div className="bg-gradient-to-r from-[#9ac842] to-[#36c2d9] pb-16 pt-32 px-4">
                 <div className="max-w-7xl mx-auto text-center">
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
                         Find Your Dream Property
