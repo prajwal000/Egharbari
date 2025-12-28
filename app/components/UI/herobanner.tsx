@@ -1,20 +1,77 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const Herobanner = () => {
+    const router = useRouter();
     const [propertyType, setPropertyType] = useState('');
     const [location, setLocation] = useState('');
     const [priceRange, setPriceRange] = useState('');
+    const [availableDistricts, setAvailableDistricts] = useState<string[]>([]);
 
-    const propertyTypes = ['House', 'Apartment', 'Land', 'Commercial', 'Villa'];
-    const locations = ['Kathmandu', 'Pokhara', 'Lalitpur', 'Bhaktapur', 'Biratnagar', 'Chitwan', 'Butwal'];
-    const priceRanges = [
-        'Under NPR 50 Lakh',
-        'NPR 50 Lakh - 1 Crore',
-        'NPR 1 Crore - 2 Crore',
-        'NPR 2 Crore - 5 Crore',
-        'Above NPR 5 Crore'
+    const propertyTypes = [
+        { label: 'House', value: 'house' },
+        { label: 'Apartment', value: 'apartment' },
+        { label: 'Land', value: 'land' },
+        { label: 'Commercial', value: 'commercial' },
+        { label: 'Villa', value: 'villa' }
     ];
+    
+    const priceRanges = [
+        { label: 'Under NPR 50 Lakh', min: 0, max: 5000000 },
+        { label: 'NPR 50 Lakh - 1 Crore', min: 5000000, max: 10000000 },
+        { label: 'NPR 1 Crore - 2 Crore', min: 10000000, max: 20000000 },
+        { label: 'NPR 2 Crore - 5 Crore', min: 20000000, max: 50000000 },
+        { label: 'Above NPR 5 Crore', min: 50000000, max: null }
+    ];
+
+    const handleSearch = () => {
+        const params = new URLSearchParams();
+        
+        if (propertyType) {
+            params.set('propertyType', propertyType);
+        }
+        
+        if (location) {
+            params.set('district', location);
+        }
+        
+        if (priceRange) {
+            const selectedRange = priceRanges.find(range => range.label === priceRange);
+            if (selectedRange) {
+                params.set('minPrice', selectedRange.min.toString());
+                if (selectedRange.max) {
+                    params.set('maxPrice', selectedRange.max.toString());
+                }
+            }
+        }
+        
+        router.push(`/properties${params.toString() ? '?' + params.toString() : ''}`);
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
+    // Fetch available districts on component mount
+    useEffect(() => {
+        const fetchDistricts = async () => {
+            try {
+                const response = await fetch('/api/properties/districts');
+                const data = await response.json();
+                if (response.ok) {
+                    setAvailableDistricts(data.districts);
+                }
+            } catch (error) {
+                console.error('Failed to fetch districts:', error);
+                // Fallback to empty array if API fails
+                setAvailableDistricts([]);
+            }
+        };
+        fetchDistricts();
+    }, []);
 
     return (
         <div className='relative py-28 bg-[url("https://shorturl.at/MVHvl")] bg-cover bg-center bg-no-repeat m-1 rounded-xl overflow-hidden'>
@@ -40,7 +97,7 @@ const Herobanner = () => {
 
                 {/* Search Card with Glassmorphism */}
                 <div className='w-full max-w-5xl bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl p-8 shadow-2xl hover:shadow-[#36c2d9]/20 transition-all duration-500'>
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6' onKeyPress={handleKeyPress}>
                         {/* Property Type Dropdown */}
                         <div className='group'>
                             <label className='block text-sm font-semibold text-white/90 mb-2 group-hover:text-[#9ac842] transition-colors'>
@@ -54,7 +111,7 @@ const Herobanner = () => {
                                 >
                                     <option value=''>Select Type</option>
                                     {propertyTypes.map((type) => (
-                                        <option key={type} value={type}>{type}</option>
+                                        <option key={type.value} value={type.value}>{type.label}</option>
                                     ))}
                                 </select>
                                 <div className='absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none'>
@@ -77,9 +134,13 @@ const Herobanner = () => {
                                     className='w-full px-4 py-4 bg-white/95 backdrop-blur-sm border-2 border-white/30 rounded-xl text-gray-800 font-medium appearance-none cursor-pointer focus:outline-none focus:border-[#36c2d9] focus:ring-4 focus:ring-[#36c2d9]/30 transition-all duration-300 hover:bg-white hover:shadow-lg'
                                 >
                                     <option value=''>Select Location</option>
-                                    {locations.map((loc) => (
-                                        <option key={loc} value={loc}>{loc}</option>
-                                    ))}
+                                    {availableDistricts.length > 0 ? (
+                                        availableDistricts.map((district) => (
+                                            <option key={district} value={district}>{district}</option>
+                                        ))
+                                    ) : (
+                                        <option disabled>Loading districts...</option>
+                                    )}
                                 </select>
                                 <div className='absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none'>
                                     <svg className='w-5 h-5 text-gray-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -100,7 +161,7 @@ const Herobanner = () => {
                                 >
                                     <option value=''>Select Price</option>
                                     {priceRanges.map((range) => (
-                                        <option key={range} value={range}>{range}</option>
+                                        <option key={range.label} value={range.label}>{range.label}</option>
                                     ))}
                                 </select>
                                 <div className='absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none'>
@@ -113,7 +174,10 @@ const Herobanner = () => {
 
                         {/* Search Button */}
                         <div className='flex items-end'>
-                            <button className='cursor-pointer w-full px-8 py-4 bg-linear-to-r from-[#9ac842] to-[#36c2d9] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:shadow-[#36c2d9]/50 transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 group'>
+                            <button 
+                                onClick={handleSearch}
+                                className='cursor-pointer w-full px-8 py-4 bg-linear-to-r from-[#9ac842] to-[#36c2d9] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:shadow-[#36c2d9]/50 transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 group'
+                            >
                                 <svg className='w-5 h-5 group-hover:rotate-12 transition-transform' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' />
                                 </svg>

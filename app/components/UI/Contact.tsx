@@ -291,7 +291,7 @@ const Contact = () => {
                             </div>
                             <div>
                                 <label htmlFor='message' className='block text-sm font-semibold text-gray-700 mb-2'>
-                                    Message *
+                                    Message * (minimum 10 characters)
                                 </label>
                                 <textarea
                                     id='message'
@@ -299,10 +299,15 @@ const Contact = () => {
                                     value={formData.message}
                                     onChange={handleChange}
                                     required
+                                    minLength={10}
+                                    maxLength={5000}
                                     rows={4}
                                     className='w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#9ac842] focus:border-transparent transition-all outline-none resize-none text-sm sm:text-base'
                                     placeholder='Tell us more about your inquiry...'
                                 />
+                                <p className='text-xs text-gray-500 mt-1'>
+                                    {formData.message.length}/10 characters minimum
+                                </p>
                             </div>
                             <button
                                 type='submit'

@@ -2,15 +2,36 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { InquiryData, InquiryStatus, InquiryType } from '@/lib/types/inquiry';
+import Image from 'next/image';
+import { InquiryStatus } from '@/lib/types/inquiry';
 
-export default function AdminInquiriesPage() {
-    const [inquiries, setInquiries] = useState<InquiryData[]>([]);
+interface PropertyInquiry {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+    subject: string;
+    message: string;
+    status: InquiryStatus;
+    isRead: boolean;
+    replies: { _id: string; message: string; isAdmin: boolean; createdAt: string }[];
+    createdAt: string;
+    property?: {
+        _id: string;
+        propertyId: string;
+        name: string;
+        location: { district: string };
+        images: { url: string }[];
+    };
+}
+
+export default function PropertyInquiriesPage() {
+    const [inquiries, setInquiries] = useState<PropertyInquiry[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedInquiry, setSelectedInquiry] = useState<InquiryData | null>(null);
+    const [selectedInquiry, setSelectedInquiry] = useState<PropertyInquiry | null>(null);
     const [replyMessage, setReplyMessage] = useState('');
     const [sendingReply, setSendingReply] = useState(false);
-    const [filter, setFilter] = useState({ status: '', type: '' });
+    const [filter, setFilter] = useState({ status: '' });
     const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0 });
 
     const fetchInquiries = useCallback(async () => {
@@ -18,9 +39,8 @@ export default function AdminInquiriesPage() {
             const params = new URLSearchParams();
             params.set('page', pagination.page.toString());
             if (filter.status) params.set('status', filter.status);
-            if (filter.type) params.set('type', filter.type);
 
-            const response = await fetch(`/api/inquiries?${params}`);
+            const response = await fetch(`/api/inquiries/property?${params}`);
             const data = await response.json();
 
             if (response.ok) {
@@ -32,7 +52,7 @@ export default function AdminInquiriesPage() {
         } finally {
             setLoading(false);
         }
-    }, [pagination.page, filter.status, filter.type]);
+    }, [pagination.page, filter.status]);
 
     useEffect(() => {
         fetchInquiries();
@@ -70,7 +90,7 @@ export default function AdminInquiriesPage() {
 
             if (response.ok) {
                 const data = await response.json();
-                setSelectedInquiry(data.inquiry);
+                setSelectedInquiry(prev => prev ? { ...prev, ...data.inquiry } : null);
                 setReplyMessage('');
                 fetchInquiries();
             }
@@ -81,7 +101,7 @@ export default function AdminInquiriesPage() {
         }
     };
 
-    const handleMarkAsRead = async (inquiry: InquiryData) => {
+    const handleMarkAsRead = async (inquiry: PropertyInquiry) => {
         if (inquiry.isRead) return;
 
         try {
@@ -96,38 +116,18 @@ export default function AdminInquiriesPage() {
         }
     };
 
-    const openInquiry = (inquiry: InquiryData) => {
+    const openInquiry = (inquiry: PropertyInquiry) => {
         setSelectedInquiry(inquiry);
         handleMarkAsRead(inquiry);
     };
 
     const getStatusColor = (status: InquiryStatus) => {
         switch (status) {
-            case InquiryStatus.PENDING:
-                return 'bg-yellow-100 text-yellow-700';
-            case InquiryStatus.IN_PROGRESS:
-                return 'bg-blue-100 text-blue-700';
-            case InquiryStatus.RESOLVED:
-                return 'bg-green-100 text-green-700';
-            case InquiryStatus.CLOSED:
-                return 'bg-gray-100 text-gray-700';
-            default:
-                return 'bg-gray-100 text-gray-700';
-        }
-    };
-
-    const getTypeColor = (type: InquiryType) => {
-        switch (type) {
-            case InquiryType.GENERAL:
-                return 'bg-purple-100 text-purple-700';
-            case InquiryType.PROPERTY:
-                return 'bg-indigo-100 text-indigo-700';
-            case InquiryType.SUPPORT:
-                return 'bg-orange-100 text-orange-700';
-            case InquiryType.FEEDBACK:
-                return 'bg-pink-100 text-pink-700';
-            default:
-                return 'bg-gray-100 text-gray-700';
+            case InquiryStatus.PENDING: return 'bg-yellow-100 text-yellow-700';
+            case InquiryStatus.IN_PROGRESS: return 'bg-blue-100 text-blue-700';
+            case InquiryStatus.RESOLVED: return 'bg-green-100 text-green-700';
+            case InquiryStatus.CLOSED: return 'bg-gray-100 text-gray-700';
+            default: return 'bg-gray-100 text-gray-700';
         }
     };
 
@@ -144,8 +144,8 @@ export default function AdminInquiriesPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Inquiries</h1>
-                    <p className="text-gray-600">Manage and respond to customer inquiries</p>
+                    <h1 className="text-2xl font-bold text-gray-900">Property Inquiries</h1>
+                    <p className="text-gray-600">Manage inquiries about specific properties</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
@@ -159,49 +159,33 @@ export default function AdminInquiriesPage() {
 
             {/* Filters */}
             <div className="bg-white rounded-xl shadow-sm p-4">
-                <div className="flex flex-wrap gap-4">
-                    <select
-                        value={filter.status}
-                        onChange={(e) => {
-                            setFilter(prev => ({ ...prev, status: e.target.value }));
-                            setPagination(prev => ({ ...prev, page: 1 }));
-                        }}
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9ac842] focus:border-transparent outline-none"
-                    >
-                        <option value="">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="closed">Closed</option>
-                    </select>
-                    <select
-                        value={filter.type}
-                        onChange={(e) => {
-                            setFilter(prev => ({ ...prev, type: e.target.value }));
-                            setPagination(prev => ({ ...prev, page: 1 }));
-                        }}
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9ac842] focus:border-transparent outline-none"
-                    >
-                        <option value="">All Types</option>
-                        <option value="general">General</option>
-                        <option value="property">Property</option>
-                        <option value="support">Support</option>
-                        <option value="feedback">Feedback</option>
-                    </select>
-                </div>
+                <select
+                    value={filter.status}
+                    onChange={(e) => {
+                        setFilter(prev => ({ ...prev, status: e.target.value }));
+                        setPagination(prev => ({ ...prev, page: 1 }));
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9ac842] focus:border-transparent outline-none"
+                >
+                    <option value="">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="closed">Closed</option>
+                </select>
             </div>
 
             {/* Main Content */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid lg:grid-cols-2 gap-6">
                 {/* Inquiries List */}
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div className="divide-y divide-gray-100 max-h-[400px] sm:max-h-[500px] lg:max-h-[600px] overflow-y-auto">
+                    <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
                         {inquiries.length === 0 ? (
                             <div className="p-8 text-center text-gray-500">
                                 <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5" />
                                 </svg>
-                                <p>No inquiries found</p>
+                                <p>No property inquiries found</p>
                             </div>
                         ) : (
                             inquiries.map((inquiry) => (
@@ -212,44 +196,47 @@ export default function AdminInquiriesPage() {
                                         selectedInquiry?._id === inquiry._id ? 'bg-blue-50 border-l-4 border-[#9ac842]' : ''
                                     } ${!inquiry.isRead ? 'bg-yellow-50/50' : ''}`}
                                 >
-                                    <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-start gap-3">
+                                        {/* Property Image */}
+                                        <div className="w-16 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                                            {inquiry.property?.images?.[0] ? (
+                                                <Image
+                                                    src={inquiry.property.images[0].url}
+                                                    alt={inquiry.property.name}
+                                                    width={64}
+                                                    height={48}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                        </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">
                                                 {!inquiry.isRead && (
                                                     <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
                                                 )}
-                                                <h3 className="font-semibold text-gray-900 truncate">
-                                                    {inquiry.subject}
+                                                <h3 className="font-semibold text-gray-900 truncate text-sm">
+                                                    {inquiry.property?.name || 'Unknown Property'}
                                                 </h3>
                                             </div>
-                                            {inquiry.property && (
-                                                <div className="mb-1">
-                                                    <span className="text-xs font-medium text-[#9ac842] bg-[#9ac842]/10 px-2 py-0.5 rounded">
-                                                        Property ID: {inquiry.property.propertyId}
-                                                    </span>
-                                                    <span className="text-xs text-gray-600 ml-2">
-                                                        {inquiry.property.name}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            <p className="text-sm text-gray-600 truncate">{inquiry.name} • {inquiry.email}</p>
-                                            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{inquiry.message}</p>
+                                            <p className="text-xs font-medium text-[#9ac842] bg-[#9ac842]/10 px-2 py-0.5 rounded inline-block mb-1">
+                                                ID: {inquiry.property?.propertyId}
+                                            </p>
+                                            <p className="text-sm text-gray-600">{inquiry.name} • {inquiry.email}</p>
+                                            <p className="text-sm text-gray-500 mt-1 line-clamp-1">{inquiry.message}</p>
                                             <div className="flex items-center gap-2 mt-2">
                                                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(inquiry.status)}`}>
                                                     {inquiry.status.replace('_', ' ')}
                                                 </span>
-                                                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getTypeColor(inquiry.type)}`}>
-                                                    {inquiry.type}
+                                                <span className="text-xs text-gray-500">
+                                                    {new Date(inquiry.createdAt).toLocaleDateString()}
                                                 </span>
-                                                {inquiry.replies.length > 0 && (
-                                                    <span className="text-xs text-gray-500">
-                                                        {inquiry.replies.length} replies
-                                                    </span>
-                                                )}
                                             </div>
-                                        </div>
-                                        <div className="text-xs text-gray-500 whitespace-nowrap">
-                                            {new Date(inquiry.createdAt).toLocaleDateString()}
                                         </div>
                                     </div>
                                 </div>
@@ -263,7 +250,7 @@ export default function AdminInquiriesPage() {
                             <button
                                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
                                 disabled={pagination.page === 1}
-                                className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-50"
                             >
                                 Previous
                             </button>
@@ -273,7 +260,7 @@ export default function AdminInquiriesPage() {
                             <button
                                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
                                 disabled={pagination.page === pagination.pages}
-                                className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-50"
                             >
                                 Next
                             </button>
@@ -285,43 +272,48 @@ export default function AdminInquiriesPage() {
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                     {selectedInquiry ? (
                         <div className="h-full flex flex-col">
+                            {/* Property Info */}
+                            {selectedInquiry.property && (
+                                <div className="p-4 border-b border-gray-100 bg-gray-50">
+                                    <Link
+                                        href={`/properties/${selectedInquiry.property._id}`}
+                                        className="flex items-center gap-3 hover:bg-gray-100 -m-2 p-2 rounded-lg transition-colors"
+                                    >
+                                        <div className="w-20 h-14 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                                            {selectedInquiry.property.images?.[0] && (
+                                                <Image
+                                                    src={selectedInquiry.property.images[0].url}
+                                                    alt={selectedInquiry.property.name}
+                                                    width={80}
+                                                    height={56}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-gray-900">{selectedInquiry.property.name}</p>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="text-xs font-medium text-[#9ac842] bg-[#9ac842]/10 px-2 py-0.5 rounded">
+                                                    ID: {selectedInquiry.property.propertyId}
+                                                </span>
+                                                <span className="text-xs text-gray-500">
+                                                    {selectedInquiry.property.location?.district}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <svg className="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </Link>
+                                </div>
+                            )}
+
                             {/* Detail Header */}
                             <div className="p-4 border-b border-gray-100">
                                 <div className="flex items-start justify-between gap-4">
                                     <div>
-                                        <h2 className="text-lg font-bold text-gray-900">{selectedInquiry.subject}</h2>
-                                        {selectedInquiry.property && (
-                                            <Link 
-                                                href={`/properties/${selectedInquiry.property._id}`}
-                                                target="_blank"
-                                                className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors block"
-                                            >
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-xs text-gray-500 mb-1">Property Inquiry:</p>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-xs font-medium text-[#9ac842] bg-[#9ac842]/10 px-2 py-0.5 rounded">
-                                                                ID: {selectedInquiry.property.propertyId}
-                                                            </span>
-                                                            <span className="text-sm font-semibold text-gray-700">
-                                                                {selectedInquiry.property.name}
-                                                            </span>
-                                                        </div>
-                                                        {selectedInquiry.property.location && (
-                                                            <p className="text-xs text-gray-500 mt-1">
-                                                                📍 {selectedInquiry.property.location.district}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                    </svg>
-                                                </div>
-                                            </Link>
-                                        )}
-                                        <p className="text-sm text-gray-600 mt-2">
-                                            From: {selectedInquiry.name} ({selectedInquiry.email})
-                                        </p>
+                                        <h2 className="text-lg font-bold text-gray-900">From: {selectedInquiry.name}</h2>
+                                        <p className="text-sm text-gray-600">{selectedInquiry.email}</p>
                                         {selectedInquiry.phone && (
                                             <p className="text-sm text-gray-500">Phone: {selectedInquiry.phone}</p>
                                         )}
@@ -340,7 +332,7 @@ export default function AdminInquiriesPage() {
                             </div>
 
                             {/* Messages */}
-                            <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 max-h-[250px] sm:max-h-[300px] lg:max-h-[350px]">
+                            <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[300px]">
                                 {/* Original Message */}
                                 <div className="bg-gray-100 rounded-xl p-4">
                                     <div className="flex items-center gap-2 mb-2">
@@ -384,44 +376,41 @@ export default function AdminInquiriesPage() {
                             </div>
 
                             {/* Reply Input */}
-                            <div className="p-3 sm:p-4 border-t border-gray-100">
-                                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                            <div className="p-4 border-t border-gray-100">
+                                <div className="flex gap-3">
                                     <textarea
                                         value={replyMessage}
                                         onChange={(e) => setReplyMessage(e.target.value)}
                                         placeholder="Type your reply..."
                                         rows={2}
-                                        className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#9ac842] focus:border-transparent outline-none resize-none text-sm sm:text-base"
+                                        className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#9ac842] focus:border-transparent outline-none resize-none"
                                     />
                                     <button
                                         onClick={handleSendReply}
                                         disabled={!replyMessage.trim() || sendingReply}
-                                        className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-[#9ac842] to-[#36c2d9] text-white font-semibold rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed sm:self-end flex items-center justify-center gap-2"
+                                        className="px-6 py-3 bg-gradient-to-r from-[#9ac842] to-[#36c2d9] text-white font-semibold rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed self-end"
                                     >
                                         {sendingReply ? (
-                                            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                                             </svg>
                                         ) : (
-                                            <>
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                                </svg>
-                                                <span className="sm:hidden">Send</span>
-                                            </>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                            </svg>
                                         )}
                                     </button>
                                 </div>
                             </div>
                         </div>
                     ) : (
-                        <div className="h-full flex items-center justify-center text-gray-500 p-8">
+                        <div className="h-full flex items-center justify-center text-gray-500 p-8 min-h-[400px]">
                             <div className="text-center">
                                 <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                                 </svg>
-                                <p>Select an inquiry to view details and reply</p>
+                                <p>Select an inquiry to view details</p>
                             </div>
                         </div>
                     )}
@@ -430,4 +419,6 @@ export default function AdminInquiriesPage() {
         </div>
     );
 }
+
+
 

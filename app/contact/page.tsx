@@ -243,16 +243,21 @@ export default function ContactPage() {
 
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Message *
+                                        Message * (minimum 10 characters)
                                     </label>
                                     <textarea
                                         required
+                                        minLength={10}
+                                        maxLength={5000}
                                         rows={5}
                                         value={formData.message}
                                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#9ac842] focus:border-transparent outline-none transition-all resize-none"
                                         placeholder="Describe your inquiry in detail..."
                                     />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        {formData.message.length}/10 characters minimum
+                                    </p>
                                 </div>
 
                                 <button

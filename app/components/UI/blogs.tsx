@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 
 interface Blog {
     id: number;
@@ -115,7 +116,7 @@ const Blogs = () => {
                             Stay updated with the latest insights, tips, and trends in Nepal's real estate market
                         </p>
                     </div>
-                    <a
+                    <Link
                         href='/blogs'
                         className='hidden md:flex items-center gap-2 text-[#9ac842] hover:text-[#36c2d9] font-semibold text-lg transition-colors group'
                     >
@@ -123,7 +124,7 @@ const Blogs = () => {
                         <svg className='w-5 h-5 group-hover:translate-x-2 transition-transform' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                             <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M17 8l4 4m0 0l-4 4m4-4H3' />
                         </svg>
-                    </a>
+                    </Link>
                 </div>
                 <div className='w-24 h-1 bg-linear-to-r from-[#9ac842] to-[#36c2d9] rounded-full'></div>
             </div>
@@ -181,7 +182,7 @@ const Blogs = () => {
                             </div>
 
                             {/* Read More Link */}
-                            <a
+                            <Link
                                 href={`/blog/${blog.id}`}
                                 className='mt-4 inline-flex items-center gap-2 text-[#9ac842] hover:text-[#36c2d9] font-semibold text-sm transition-colors group/link'
                             >
@@ -189,7 +190,7 @@ const Blogs = () => {
                                 <svg className='w-4 h-4 group-hover/link:translate-x-1 transition-transform' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M17 8l4 4m0 0l-4 4m4-4H3' />
                                 </svg>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 ))}
@@ -197,7 +198,7 @@ const Blogs = () => {
 
             {/* Mobile View All Link */}
             <div className={`md:hidden text-center mt-12 transition-all duration-1000 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-                <a
+                <Link
                     href='/blogs'
                     className='inline-flex items-center gap-2 text-[#9ac842] hover:text-[#36c2d9] font-semibold text-lg transition-colors group'
                 >
@@ -205,7 +206,7 @@ const Blogs = () => {
                     <svg className='w-5 h-5 group-hover:translate-x-2 transition-transform' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                         <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M17 8l4 4m0 0l-4 4m4-4H3' />
                     </svg>
-                </a>
+                </Link>
             </div>
         </section>
     );

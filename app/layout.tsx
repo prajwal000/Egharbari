@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "./components/layout/header";
 import Footer from "./components/layout/footer";
 import Providers from "./providers";
+import ProgressBar from "./components/ProgressBar";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -27,6 +28,7 @@ export default function RootLayout({
         className={`${dmSans.variable} antialiased`}
       >
         <Providers>
+          <ProgressBar />
           <Header />
           {children}
           <Footer />

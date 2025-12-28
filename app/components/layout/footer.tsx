@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import Logo from '../UI/Logo';
 
 const Footer = () => {
@@ -47,34 +48,34 @@ const Footer = () => {
                         <h3 className='text-white text-lg font-bold mb-6'>Quick Links</h3>
                         <ul className='space-y-3'>
                             <li>
-                                <a href='/' className='hover:text-[#9ac842] transition-colors flex items-center gap-2'>
+                                <Link href='/' className='hover:text-[#9ac842] transition-colors flex items-center gap-2'>
                                     <span className='text-[#9ac842]'>›</span>
                                     Home
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href='/properties' className='hover:text-[#9ac842] transition-colors flex items-center gap-2'>
+                                <Link href='/properties' className='hover:text-[#9ac842] transition-colors flex items-center gap-2'>
                                     <span className='text-[#9ac842]'>›</span>
                                     Properties
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href='/about' className='hover:text-[#9ac842] transition-colors flex items-center gap-2'>
+                                <Link href='/about' className='hover:text-[#9ac842] transition-colors flex items-center gap-2'>
                                     <span className='text-[#9ac842]'>›</span>
                                     About Us
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href='/blogs' className='hover:text-[#9ac842] transition-colors flex items-center gap-2'>
+                                <Link href='/blogs' className='hover:text-[#9ac842] transition-colors flex items-center gap-2'>
                                     <span className='text-[#9ac842]'>›</span>
                                     Blog
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href='/contact' className='hover:text-[#9ac842] transition-colors flex items-center gap-2'>
+                                <Link href='/contact' className='hover:text-[#9ac842] transition-colors flex items-center gap-2'>
                                     <span className='text-[#9ac842]'>›</span>
                                     Contact
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
@@ -84,34 +85,34 @@ const Footer = () => {
                         <h3 className='text-white text-lg font-bold mb-6'>Our Services</h3>
                         <ul className='space-y-3'>
                             <li>
-                                <a href='/buy' className='hover:text-[#36c2d9] transition-colors flex items-center gap-2'>
+                                <Link href='/buy' className='hover:text-[#36c2d9] transition-colors flex items-center gap-2'>
                                     <span className='text-[#36c2d9]'>›</span>
                                     Buy Property
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href='/sell' className='hover:text-[#36c2d9] transition-colors flex items-center gap-2'>
+                                <Link href='/sell' className='hover:text-[#36c2d9] transition-colors flex items-center gap-2'>
                                     <span className='text-[#36c2d9]'>›</span>
                                     Sell Property
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href='/rent' className='hover:text-[#36c2d9] transition-colors flex items-center gap-2'>
+                                <Link href='/rent' className='hover:text-[#36c2d9] transition-colors flex items-center gap-2'>
                                     <span className='text-[#36c2d9]'>›</span>
                                     Rent Property
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href='/valuation' className='hover:text-[#36c2d9] transition-colors flex items-center gap-2'>
+                                <Link href='/valuation' className='hover:text-[#36c2d9] transition-colors flex items-center gap-2'>
                                     <span className='text-[#36c2d9]'>›</span>
                                     Property Valuation
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href='/consultation' className='hover:text-[#36c2d9] transition-colors flex items-center gap-2'>
+                                <Link href='/consultation' className='hover:text-[#36c2d9] transition-colors flex items-center gap-2'>
                                     <span className='text-[#36c2d9]'>›</span>
                                     Consultation
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
@@ -158,15 +159,15 @@ const Footer = () => {
                             © {currentYear} eGharBari. All rights reserved.
                         </p>
                         <div className='flex gap-6 text-sm'>
-                            <a href='/privacy' className='text-gray-400 hover:text-[#9ac842] transition-colors'>
+                            <Link href='/privacy' className='text-gray-400 hover:text-[#9ac842] transition-colors'>
                                 Privacy Policy
-                            </a>
-                            <a href='/terms' className='text-gray-400 hover:text-[#9ac842] transition-colors'>
+                            </Link>
+                            <Link href='/terms' className='text-gray-400 hover:text-[#9ac842] transition-colors'>
                                 Terms of Service
-                            </a>
-                            <a href='/sitemap' className='text-gray-400 hover:text-[#9ac842] transition-colors'>
+                            </Link>
+                            <Link href='/sitemap' className='text-gray-400 hover:text-[#9ac842] transition-colors'>
                                 Sitemap
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>

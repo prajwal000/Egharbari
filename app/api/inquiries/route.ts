@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import dbConnect from '@/lib/db';
 import Inquiry from '@/lib/models/Inquiry';
+import Property from '@/lib/models/Property';
 import { authOptions } from '@/lib/auth';
 
 /**
@@ -49,8 +50,25 @@ export async function GET(request: NextRequest) {
             Inquiry.countDocuments(query),
         ]);
 
+        // Fetch property details for property inquiries
+        const propertyIds = [...new Set(inquiries.map(i => i.propertyId).filter(Boolean))];
+        let propertyMap = new Map();
+        
+        if (propertyIds.length > 0) {
+            const properties = await Property.find({ _id: { $in: propertyIds } })
+                .select('propertyId name location.district images')
+                .lean();
+            propertyMap = new Map(properties.map(p => [p._id.toString(), p]));
+        }
+
+        // Attach property info to inquiries
+        const inquiriesWithProperty = inquiries.map(inquiry => ({
+            ...inquiry,
+            property: inquiry.propertyId ? propertyMap.get(inquiry.propertyId.toString()) : null,
+        }));
+
         return NextResponse.json({
-            inquiries,
+            inquiries: inquiriesWithProperty,
             pagination: {
                 page,
                 limit,
@@ -111,10 +129,20 @@ export async function POST(request: NextRequest) {
             },
             { status: 201 }
         );
-    } catch (error) {
+    } catch (error: any) {
         console.error('Create inquiry error:', error);
+        
+        // Handle Mongoose validation errors
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map((err: any) => err.message);
+            return NextResponse.json(
+                { error: errors.join(', ') },
+                { status: 400 }
+            );
+        }
+        
         return NextResponse.json(
-            { error: 'Failed to submit inquiry' },
+            { error: 'Failed to submit inquiry. Please try again.' },
             { status: 500 }
         );
     }

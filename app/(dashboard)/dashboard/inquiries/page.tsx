@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { InquiryData, InquiryStatus, InquiryType } from '@/lib/types/inquiry';
 
 export default function UserInquiriesPage() {
@@ -161,11 +162,41 @@ export default function UserInquiriesPage() {
                                         selectedInquiry?._id === inquiry._id ? 'bg-blue-50 border-l-4 border-[#9ac842]' : ''
                                     }`}
                                 >
-                                    <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-start gap-3">
+                                        {/* Property Image (if property inquiry) */}
+                                        {inquiry.property && (
+                                            <div className="w-16 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                                                {inquiry.property.images?.[0] ? (
+                                                    <Image
+                                                        src={inquiry.property.images[0].url}
+                                                        alt={inquiry.property.name}
+                                                        width={64}
+                                                        height={48}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16" />
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-semibold text-gray-900 truncate mb-1">
-                                                {inquiry.subject}
-                                            </h3>
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div>
+                                                    <h3 className="font-semibold text-gray-900 truncate mb-1">
+                                                        {inquiry.property ? inquiry.property.name : inquiry.subject}
+                                                    </h3>
+                                                    {inquiry.property && (
+                                                        <p className="text-xs text-gray-500 mb-1">{inquiry.property.propertyId}</p>
+                                                    )}
+                                                </div>
+                                                <div className="text-xs text-gray-500 whitespace-nowrap">
+                                                    {new Date(inquiry.createdAt).toLocaleDateString()}
+                                                </div>
+                                            </div>
                                             <p className="text-sm text-gray-500 line-clamp-2 mb-2">{inquiry.message}</p>
                                             <div className="flex items-center gap-2 flex-wrap">
                                                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(inquiry.status)}`}>
@@ -183,9 +214,6 @@ export default function UserInquiriesPage() {
                                                     </span>
                                                 )}
                                             </div>
-                                        </div>
-                                        <div className="text-xs text-gray-500 whitespace-nowrap">
-                                            {new Date(inquiry.createdAt).toLocaleDateString()}
                                         </div>
                                     </div>
                                 </div>
@@ -220,11 +248,40 @@ export default function UserInquiriesPage() {
                     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                         {selectedInquiry ? (
                             <div className="h-full flex flex-col">
+                                {/* Property Info (if property inquiry) */}
+                                {selectedInquiry.property && (
+                                    <div className="p-4 border-b border-gray-100 bg-gray-50">
+                                        <Link
+                                            href={`/properties/${selectedInquiry.property._id}`}
+                                            className="flex items-center gap-3 hover:bg-gray-100 -m-2 p-2 rounded-lg transition-colors"
+                                        >
+                                            <div className="w-20 h-14 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                                                {selectedInquiry.property.images?.[0] && (
+                                                    <Image
+                                                        src={selectedInquiry.property.images[0].url}
+                                                        alt={selectedInquiry.property.name}
+                                                        width={80}
+                                                        height={56}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                )}
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-gray-900">{selectedInquiry.property.name}</p>
+                                                <p className="text-xs text-gray-500">{selectedInquiry.property.propertyId} • {selectedInquiry.property.location?.district}</p>
+                                            </div>
+                                            <svg className="w-4 h-4 text-gray-400 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                        </Link>
+                                    </div>
+                                )}
+
                                 {/* Detail Header */}
                                 <div className="p-4 border-b border-gray-100">
                                     <div className="flex items-start justify-between gap-4">
                                         <div>
-                                            <h2 className="text-lg font-bold text-gray-900">{selectedInquiry.subject}</h2>
+                                            <h2 className="text-lg font-bold text-gray-900">{selectedInquiry.property ? 'Your Inquiry' : selectedInquiry.subject}</h2>
                                             <p className="text-sm text-gray-500 mt-1">
                                                 {new Date(selectedInquiry.createdAt).toLocaleDateString('en-US', {
                                                     weekday: 'long',

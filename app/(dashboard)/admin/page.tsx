@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { UserRole } from '@/lib/models/User';
+import { UserRole } from '@/lib/types/user';
 import Link from 'next/link';
 
 export default function AdminDashboard() {

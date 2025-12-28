@@ -70,16 +70,16 @@ const Header = () => {
             <div className='max-w-7xl mx-auto px-7 md:px-8 lg:px-12 '>
                 <div className='flex items-center justify-between h-20'>
                     {/* Logo */}
-                    <a href='/' className='flex items-center'>
+                    <Link href='/' className='flex items-center'>
                         <div className={`transition-colors ${isHomePage && !isScrolled ? 'text-white' : ''
                             }`}>
                             <Logo />
                         </div>
-                    </a>
+                    </Link>
 
                     <nav className='hidden md:flex items-center gap-8'>
                         {navLinks.map((link) => (
-                            <a
+                            <Link
                                 key={link.name}
                                 href={link.href}
                                 className={`font-semibold transition-colors ${isHomePage && !isScrolled
@@ -88,7 +88,7 @@ const Header = () => {
                                     } ${pathname === link.href ? 'text-[#9ac842]' : ''}`}
                             >
                                 {link.name}
-                            </a>
+                            </Link>
                         ))}
                     </nav>
 
@@ -164,14 +164,14 @@ const Header = () => {
                 >
                     <nav className='flex flex-col gap-4 py-4 px-4'>
                         {navLinks.map((link) => (
-                            <a
+                            <Link
                                 key={link.name}
                                 href={link.href}
                                 className={`font-semibold py-2 text-gray-700 hover:text-[#9ac842] transition-colors ${pathname === link.href ? 'text-[#9ac842]' : ''}`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 {link.name}
-                            </a>
+                            </Link>
                         ))}
                         {isAuthenticated ? (
                             <Link

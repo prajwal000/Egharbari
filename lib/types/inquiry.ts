@@ -29,6 +29,19 @@ export interface ReplyData {
 }
 
 /**
+ * Property info for inquiry
+ */
+export interface InquiryPropertyData {
+    _id: string;
+    propertyId: string;
+    name: string;
+    location?: {
+        district: string;
+    };
+    images?: { url: string }[];
+}
+
+/**
  * Inquiry interface for client-side
  */
 export interface InquiryData {
@@ -46,5 +59,6 @@ export interface InquiryData {
     isRead: boolean;
     createdAt: string;
     updatedAt: string;
+    property?: InquiryPropertyData;
 }
 
