@@ -9,24 +9,29 @@ if (!MONGODB_URI) {
 }
 
 /**
+ * Cached connection interface
+ */
+interface MongooseCache {
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
+}
+
+/**
  * Global type declaration for mongoose cache
  */
 declare global {
     // eslint-disable-next-line no-var
-    var mongoose: {
-        conn: typeof mongoose | null;
-        promise: Promise<typeof mongoose> | null;
-    };
+    var mongoose: MongooseCache | undefined;
 }
 
 /**
  * Cached connection to MongoDB
  * This prevents connection accumulation during hot reloads in development
  */
-let cached = global.mongoose;
+let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
-if (!cached) {
-    cached = global.mongoose = { conn: null, promise: null };
+if (!global.mongoose) {
+    global.mongoose = cached;
 }
 
 /**
@@ -35,7 +40,7 @@ if (!cached) {
  */
 async function dbConnect(): Promise<typeof mongoose> {
     if (cached.conn) {
-        return cached.conn;
+        return mongoose;
     }
 
     if (!cached.promise) {
@@ -60,7 +65,7 @@ async function dbConnect(): Promise<typeof mongoose> {
         throw e;
     }
 
-    return cached.conn;
+    return mongoose;
 }
 
 export default dbConnect;

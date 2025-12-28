@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import dbConnect from '@/lib/db';
-import Inquiry from '@/lib/models/Inquiry';
+import Inquiry, { InquiryStatus } from '@/lib/models/Inquiry';
 import { authOptions } from '@/lib/auth';
 
 /**
@@ -60,8 +60,8 @@ export async function POST(
         });
 
         // If admin is replying, update status to in_progress if it was pending
-        if (isAdmin && inquiry.status === 'pending') {
-            inquiry.status = 'in_progress';
+        if (isAdmin && inquiry.status === InquiryStatus.PENDING) {
+            inquiry.status = InquiryStatus.IN_PROGRESS;
         }
 
         await inquiry.save();

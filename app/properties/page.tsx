@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -13,7 +13,7 @@ import {
     NEPAL_DISTRICTS,
 } from '@/lib/types/property';
 
-export default function PropertiesPage() {
+function PropertiesContent() {
     const searchParams = useSearchParams();
     const [properties, setProperties] = useState<PropertyData[]>([]);
     const [loading, setLoading] = useState(true);
@@ -467,5 +467,16 @@ export default function PropertiesPage() {
     );
 }
 
+export default function PropertiesPage() {
+    return (
+        <Suspense fallback={
+            <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+                <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-[#9ac842]'></div>
+            </div>
+        }>
+            <PropertiesContent />
+        </Suspense>
+    );
+}
 
 
