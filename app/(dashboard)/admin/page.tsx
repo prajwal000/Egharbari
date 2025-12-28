@@ -6,30 +6,52 @@ import { useEffect, useState } from 'react';
 import { UserRole } from '@/lib/types/user';
 import Link from 'next/link';
 
+interface AdminStats {
+    users: {
+        total: number;
+        admins: number;
+        regular: number;
+        recent: any[];
+    };
+    properties: {
+        total: number;
+        active: number;
+        pending: number;
+        sold: number;
+        recent: any[];
+    };
+    inquiries: {
+        total: number;
+        pending: number;
+        general: number;
+        propertySpecific: number;
+    };
+}
+
 export default function AdminDashboard() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [userStats, setUserStats] = useState({ total: 0, totalAdmins: 0, totalUsers: 0, recentUsers: [] });
+    const [stats, setStats] = useState<AdminStats | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Double-check admin access on client side
+    // Redirect non-admins to user dashboard
     useEffect(() => {
         if (status === 'authenticated' && session?.user?.role !== UserRole.ADMIN) {
             router.push('/dashboard');
         }
     }, [status, session, router]);
 
-    // Fetch user statistics
+    // Fetch all admin statistics
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await fetch('/api/users/stats');
+                const response = await fetch('/api/admin/stats');
                 const data = await response.json();
                 if (response.ok) {
-                    setUserStats(data);
+                    setStats(data);
                 }
             } catch (error) {
-                console.error('Failed to fetch user stats:', error);
+                console.error('Failed to fetch admin stats:', error);
             } finally {
                 setLoading(false);
             }
@@ -48,24 +70,19 @@ export default function AdminDashboard() {
         );
     }
 
-    if (session?.user?.role !== UserRole.ADMIN) {
+    if (!session || session.user.role !== UserRole.ADMIN || !stats) {
         return null;
     }
 
-    const stats = [
-        { label: 'Total Users', value: userStats.total.toString(), change: '+12%', icon: '👥', color: 'from-blue-500 to-cyan-500' },
-        { label: 'Active Listings', value: '567', change: '+8%', icon: '🏠', color: 'from-green-500 to-emerald-500' },
-        { label: 'Pending Inquiries', value: '23', change: '-5%', icon: '📩', color: 'from-orange-500 to-amber-500' },
-        { label: 'Revenue (NPR)', value: '12.5L', change: '+24%', icon: '💰', color: 'from-purple-500 to-pink-500' },
+    const statsCards = [
+        { label: 'Total Users', value: stats.users.total.toString(), icon: '👥', color: 'from-blue-500 to-cyan-500', link: '/admin/users' },
+        { label: 'Active Listings', value: stats.properties.active.toString(), icon: '🏠', color: 'from-green-500 to-emerald-500', link: '/admin/properties' },
+        { label: 'Pending Inquiries', value: stats.inquiries.pending.toString(), icon: '📩', color: 'from-orange-500 to-amber-500', link: '/admin/inquiries' },
+        { label: 'Total Properties', value: stats.properties.total.toString(), icon: '🏢', color: 'from-purple-500 to-pink-500', link: '/admin/properties' },
     ];
 
-    const recentUsers = userStats.recentUsers.slice(0, 3);
-
-    const recentProperties = [
-        { id: 1, title: 'Luxury Villa in Kathmandu', owner: 'Rajesh S.', status: 'pending', date: '1 hour ago' },
-        { id: 2, title: 'Modern Apartment in Pokhara', owner: 'Sita T.', status: 'approved', date: '3 hours ago' },
-        { id: 3, title: 'Commercial Space in Lalitpur', owner: 'Bikram R.', status: 'rejected', date: '1 day ago' },
-    ];
+    const recentUsers = stats.users.recent.slice(0, 3);
+    const recentProperties = stats.properties.recent.slice(0, 3);
 
     return (
         <div className='space-y-8'>
@@ -82,27 +99,96 @@ export default function AdminDashboard() {
 
             {/* Stats Grid */}
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
-                {stats.map((stat) => (
-                    <div
+                {statsCards.map((stat) => (
+                    <Link
                         key={stat.label}
-                        className='bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow'
+                        href={stat.link}
+                        className='bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all transform hover:-translate-y-1'
                     >
                         <div className='flex items-center justify-between mb-4'>
                             <span className='text-3xl'>{stat.icon}</span>
-                            <span
-                                className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                                    stat.change.startsWith('+')
-                                        ? 'bg-green-100 text-green-700'
-                                        : 'bg-red-100 text-red-700'
-                                }`}
-                            >
-                                {stat.change}
-                            </span>
                         </div>
                         <p className='text-3xl font-bold text-gray-900 mb-1'>{stat.value}</p>
                         <p className='text-gray-600 text-sm'>{stat.label}</p>
-                    </div>
+                    </Link>
                 ))}
+            </div>
+
+            {/* Detailed Stats Overview */}
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+                {/* Users Breakdown */}
+                <div className='bg-white rounded-2xl p-6 shadow-sm border border-gray-100'>
+                    <h3 className='text-lg font-bold text-gray-900 mb-4 flex items-center gap-2'>
+                        <span className='text-2xl'>👥</span>
+                        User Statistics
+                    </h3>
+                    <div className='space-y-3'>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>Total Users</span>
+                            <span className='font-bold text-gray-900'>{stats.users.total}</span>
+                        </div>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>Admins</span>
+                            <span className='font-bold text-purple-600'>{stats.users.admins}</span>
+                        </div>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>Regular Users</span>
+                            <span className='font-bold text-blue-600'>{stats.users.regular}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Properties Breakdown */}
+                <div className='bg-white rounded-2xl p-6 shadow-sm border border-gray-100'>
+                    <h3 className='text-lg font-bold text-gray-900 mb-4 flex items-center gap-2'>
+                        <span className='text-2xl'>🏠</span>
+                        Property Statistics
+                    </h3>
+                    <div className='space-y-3'>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>Total Properties</span>
+                            <span className='font-bold text-gray-900'>{stats.properties.total}</span>
+                        </div>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>Active</span>
+                            <span className='font-bold text-green-600'>{stats.properties.active}</span>
+                        </div>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>Pending</span>
+                            <span className='font-bold text-yellow-600'>{stats.properties.pending}</span>
+                        </div>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>Sold</span>
+                            <span className='font-bold text-blue-600'>{stats.properties.sold}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Inquiries Breakdown */}
+                <div className='bg-white rounded-2xl p-6 shadow-sm border border-gray-100'>
+                    <h3 className='text-lg font-bold text-gray-900 mb-4 flex items-center gap-2'>
+                        <span className='text-2xl'>📩</span>
+                        Inquiry Statistics
+                    </h3>
+                    <div className='space-y-3'>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>Total Inquiries</span>
+                            <span className='font-bold text-gray-900'>{stats.inquiries.total}</span>
+                        </div>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>Pending</span>
+                            <span className='font-bold text-orange-600'>{stats.inquiries.pending}</span>
+                        </div>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>General</span>
+                            <span className='font-bold text-blue-600'>{stats.inquiries.general}</span>
+                        </div>
+                        <div className='flex items-center justify-between'>
+                            <span className='text-sm text-gray-600'>Property Specific</span>
+                            <span className='font-bold text-purple-600'>{stats.inquiries.propertySpecific}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Two Column Layout */}
@@ -168,31 +254,41 @@ export default function AdminDashboard() {
                         </Link>
                     </div>
                     <div className='space-y-4'>
-                        {recentProperties.map((property) => (
-                            <div
-                                key={property.id}
-                                className='flex items-center justify-between p-4 rounded-xl bg-gray-50'
-                            >
-                                <div>
-                                    <p className='font-semibold text-gray-900'>{property.title}</p>
-                                    <p className='text-xs text-gray-500'>by {property.owner}</p>
+                        {recentProperties.length > 0 ? (
+                            recentProperties.map((property: any) => (
+                                <div
+                                    key={property._id}
+                                    className='flex items-center justify-between p-4 rounded-xl bg-gray-50'
+                                >
+                                    <div className='flex-1'>
+                                        <p className='font-semibold text-gray-900'>{property.name}</p>
+                                        <p className='text-xs text-gray-500'>
+                                            {property.location?.district} • {property.propertyType}
+                                        </p>
+                                    </div>
+                                    <div className='text-right ml-4'>
+                                        <span
+                                            className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                                                property.status === 'available'
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : property.status === 'pending'
+                                                    ? 'bg-yellow-100 text-yellow-700'
+                                                    : property.status === 'sold'
+                                                    ? 'bg-blue-100 text-blue-700'
+                                                    : 'bg-red-100 text-red-700'
+                                            }`}
+                                        >
+                                            {property.status}
+                                        </span>
+                                        <p className='text-xs text-gray-500 mt-1'>
+                                            {new Date(property.createdAt).toLocaleDateString()}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className='text-right'>
-                                    <span
-                                        className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                                            property.status === 'approved'
-                                                ? 'bg-green-100 text-green-700'
-                                                : property.status === 'pending'
-                                                ? 'bg-yellow-100 text-yellow-700'
-                                                : 'bg-red-100 text-red-700'
-                                        }`}
-                                    >
-                                        {property.status}
-                                    </span>
-                                    <p className='text-xs text-gray-500 mt-1'>{property.date}</p>
-                                </div>
-                            </div>
-                        ))}
+                            ))
+                        ) : (
+                            <p className='text-center text-gray-500 py-8'>No properties yet</p>
+                        )}
                     </div>
                 </div>
             </div>

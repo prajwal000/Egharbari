@@ -138,7 +138,11 @@ export default function DashboardSidebar({ isOpen, onClose, userRole }: SidebarP
                 {/* Navigation - Scrollable */}
                 <nav className='flex-1 px-3 sm:px-4 py-4 sm:py-6 space-y-1 sm:space-y-2 overflow-y-auto'>
                     {navItems.map((item) => {
-                        const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                        // More precise active check - exact match for dashboard, startsWith for sub-routes
+                        const dashboardPath = isAdmin ? '/admin' : '/dashboard';
+                        const isActive = item.href === dashboardPath 
+                            ? pathname === dashboardPath 
+                            : pathname === item.href || pathname.startsWith(item.href + '/');
                         return (
                             <Link
                                 key={item.name}
@@ -146,7 +150,9 @@ export default function DashboardSidebar({ isOpen, onClose, userRole }: SidebarP
                                 onClick={onClose}
                                 className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl transition-all ${
                                     isActive
-                                        ? 'bg-gradient-to-r from-[#9ac842] to-[#36c2d9] text-white shadow-lg'
+                                        ? isAdmin
+                                            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg'
+                                            : 'bg-gradient-to-r from-[#9ac842] to-[#36c2d9] text-white shadow-lg'
                                         : 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
                                 }`}
                             >
@@ -159,20 +165,6 @@ export default function DashboardSidebar({ isOpen, onClose, userRole }: SidebarP
 
                 {/* Bottom Section */}
                 <div className='border-t border-gray-200 px-3 sm:px-4 py-3 sm:py-4 space-y-2 flex-shrink-0'>
-                    {/* Switch Panel (for admin) */}
-                    {isAdmin && (
-                        <Link
-                            href='/dashboard'
-                            onClick={onClose}
-                            className='flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300 transition-all'
-                        >
-                            <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4' />
-                            </svg>
-                            <span className='font-medium text-sm sm:text-base'>Switch to User View</span>
-                        </Link>
-                    )}
-
                     {/* Back to Website */}
                     <Link
                         href='/'

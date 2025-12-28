@@ -6,10 +6,17 @@ export default withAuth(
         const token = req.nextauth.token;
         const path = req.nextUrl.pathname;
 
-        // Admin routes protection
+        // Admin routes protection - redirect non-admins to their dashboard
         if (path.startsWith('/admin')) {
             if (token?.role !== 'admin') {
                 return NextResponse.redirect(new URL('/dashboard', req.url));
+            }
+        }
+
+        // User dashboard routes protection - redirect admins to admin panel
+        if (path.startsWith('/dashboard')) {
+            if (token?.role === 'admin') {
+                return NextResponse.redirect(new URL('/admin', req.url));
             }
         }
 

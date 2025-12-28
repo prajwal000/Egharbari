@@ -96,7 +96,7 @@ const Header = () => {
                     <div className='hidden md:flex items-center gap-4'>
                         {isAuthenticated ? (
                             <Link
-                                href='/dashboard'
+                                href={session?.user?.role === 'admin' ? '/admin' : '/dashboard'}
                                 className='px-6 py-3 bg-gradient-to-r from-[#9ac842] to-[#36c2d9] text-white font-bold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200'
                             >
                                 Dashboard
@@ -175,7 +175,7 @@ const Header = () => {
                         ))}
                         {isAuthenticated ? (
                             <Link
-                                href='/dashboard'
+                                href={session?.user?.role === 'admin' ? '/admin' : '/dashboard'}
                                 className='px-6 py-3 bg-gradient-to-r from-[#9ac842] to-[#36c2d9] text-white font-bold rounded-xl text-center hover:shadow-lg transform hover:scale-105 transition-all duration-200'
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
