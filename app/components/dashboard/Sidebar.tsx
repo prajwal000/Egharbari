@@ -23,8 +23,6 @@ const adminNavItems = [
     { name: 'Properties', href: '/admin/properties', icon: 'building' },
     { name: 'Inquiries', href: '/admin/inquiries', icon: 'message' },
     { name: 'Property Inquiries', href: '/admin/property-inquiries', icon: 'inquiry' },
-    { name: 'Reports', href: '/admin/reports', icon: 'chart' },
-    { name: 'Settings', href: '/admin/settings', icon: 'settings' },
 ];
 
 const icons: Record<string, React.ReactElement> = {

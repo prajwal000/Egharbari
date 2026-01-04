@@ -142,8 +142,21 @@ export async function PATCH(
             message: 'Property updated successfully',
             property,
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Update property error:', error);
+        
+        // Handle Mongoose validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors || {})
+                .map((err: any) => err.message)
+                .join(', ');
+            
+            return NextResponse.json(
+                { error: messages || 'Validation failed' },
+                { status: 400 }
+            );
+        }
+        
         return NextResponse.json(
             { error: 'Failed to update property' },
             { status: 500 }

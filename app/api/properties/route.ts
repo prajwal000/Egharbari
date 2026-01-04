@@ -180,14 +180,31 @@ export async function POST(request: NextRequest) {
             },
             { status: 201 }
         );
-    } catch (error) {
+    } catch (error: any) {
         console.error('Create property error:', error);
+        
+        // Handle Mongoose validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors || {})
+                .map((err: any) => err.message)
+                .join(', ');
+            
+            return NextResponse.json(
+                { error: messages || 'Validation failed' },
+                { status: 400 }
+            );
+        }
+        
         return NextResponse.json(
             { error: 'Failed to create property' },
             { status: 500 }
         );
     }
 }
+
+
+
+
 
 
 

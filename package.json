@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "npx ts-node --project tsconfig.json scripts/seed-admin.ts"
+    "seed": "npx ts-node --project tsconfig.json scripts/seed-admin.ts",
+    "generate-slugs": "npx ts-node --project tsconfig.json scripts/generate-property-slugs.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

@@ -350,7 +350,7 @@ function PropertiesContent() {
                                     {properties.map((property) => (
                                         <Link
                                             key={property._id}
-                                            href={`/properties/${property.slug}`}
+                                            href={`/properties/${property.slug || property._id}`}
                                             className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow group"
                                         >
                                             {/* Image */}
