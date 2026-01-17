@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import FavoriteButton from '@/app/components/UI/FavoriteButton';
 import {
     PropertyData,
     PropertyType,
@@ -161,7 +162,7 @@ function PropertiesContent() {
                                 value={filters.search}
                                 onChange={(e) => handleFilterChange('search', e.target.value)}
                                 placeholder="Search by name, location..."
-                                className="flex-1 px-6 py-4 rounded-xl border-0 outline-none text-gray-900"
+                                className="flex-1 px-6 py-4 rounded-xl border border-white bg-white/10 text-white placeholder-white/70 outline-none focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 transition-all"
                             />
                             <button
                                 onClick={() => fetchProperties()}
@@ -348,37 +349,37 @@ function PropertiesContent() {
                             <>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                                     {properties.map((property) => (
-                                        <Link
-                                            key={property._id}
-                                            href={`/properties/${property.slug || property._id}`}
-                                            className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow group"
-                                        >
-                                            {/* Image */}
-                                            <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
-                                                {property.images[0] ? (
-                                                    <Image
-                                                        src={property.images[0].url}
-                                                        alt={property.name}
-                                                        fill
-                                                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                        <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                        </svg>
+                                        <div key={property._id} className="relative">
+                                            <Link
+                                                href={`/properties/${property.slug || property._id}`}
+                                                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow group block"
+                                            >
+                                                {/* Image */}
+                                                <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
+                                                    {property.images[0] ? (
+                                                        <Image
+                                                            src={property.images[0].url}
+                                                            alt={property.name}
+                                                            fill
+                                                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                            <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                        </div>
+                                                    )}
+                                                    {/* Listing Badge */}
+                                                    <div className={`absolute top-3 left-3 px-3 py-1 ${getListingBadgeColor(property.listingType)} text-white text-xs font-semibold rounded-full`}>
+                                                        {LISTING_TYPE_LABELS[property.listingType]}
                                                     </div>
-                                                )}
-                                                {/* Listing Badge */}
-                                                <div className={`absolute top-3 left-3 px-3 py-1 ${getListingBadgeColor(property.listingType)} text-white text-xs font-semibold rounded-full`}>
-                                                    {LISTING_TYPE_LABELS[property.listingType]}
+                                                    {property.isFeatured && (
+                                                        <div className="absolute top-3 right-12 px-3 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-full">
+                                                            Featured
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                {property.isFeatured && (
-                                                    <div className="absolute top-3 right-3 px-3 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-full">
-                                                        Featured
-                                                    </div>
-                                                )}
-                                            </div>
 
                                             {/* Content */}
                                             <div className="p-4">
@@ -432,7 +433,12 @@ function PropertiesContent() {
                                                     </span>
                                                 </div>
                                             </div>
-                                        </Link>
+                                            </Link>
+                                            {/* Favorite Button */}
+                                            <div className="absolute top-3 right-3 z-10">
+                                                <FavoriteButton propertyId={property._id} size="md" />
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
 

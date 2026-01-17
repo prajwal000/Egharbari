@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { InquiryType } from '@/lib/types/inquiry';
+import HumanVerification from '@/app/components/UI/HumanVerification';
 
 export default function ContactPage() {
     const { data: session } = useSession();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isVerified, setIsVerified] = useState(false);
+    const [formStartTime] = useState(Date.now());
     const [submitStatus, setSubmitStatus] = useState<{
         type: 'success' | 'error' | null;
         message: string;
@@ -23,6 +26,15 @@ export default function ContactPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!isVerified) {
+            setSubmitStatus({
+                type: 'error',
+                message: 'Please verify that you are human before submitting.',
+            });
+            return;
+        }
+
         setIsSubmitting(true);
         setSubmitStatus({ type: null, message: '' });
 
@@ -30,7 +42,10 @@ export default function ContactPage() {
             const response = await fetch('/api/inquiries', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    startTime: formStartTime,
+                }),
             });
 
             const data = await response.json();
@@ -260,9 +275,12 @@ export default function ContactPage() {
                                     </p>
                                 </div>
 
+                                {/* Human Verification */}
+                                <HumanVerification onVerify={setIsVerified} />
+
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || !isVerified}
                                     className="w-full py-4 bg-gradient-to-r from-[#9ac842] to-[#36c2d9] text-white font-semibold rounded-xl hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {isSubmitting ? (

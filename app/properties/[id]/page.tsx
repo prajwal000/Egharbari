@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import FavoriteButton from '@/app/components/UI/FavoriteButton';
 import {
     PropertyData,
     PROPERTY_TYPE_LABELS,
@@ -171,6 +172,10 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                                     <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#9ac842] text-white">
                                         {LISTING_TYPE_LABELS[property.listingType]}
                                     </span>
+                                </div>
+                                {/* Favorite Button */}
+                                <div className="absolute top-4 right-4">
+                                    <FavoriteButton propertyId={property._id} size="lg" />
                                 </div>
                             </div>
 

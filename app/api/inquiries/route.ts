@@ -4,6 +4,7 @@ import dbConnect from '@/lib/db';
 import Inquiry from '@/lib/models/Inquiry';
 import Property from '@/lib/models/Property';
 import { authOptions } from '@/lib/auth';
+import { validateEmail, checkRateLimit, verifyHumanSubmission } from '@/lib/utils/emailValidation';
 
 /**
  * GET /api/inquiries
@@ -95,9 +96,9 @@ export async function POST(request: NextRequest) {
         const session = await getServerSession(authOptions);
         const body = await request.json();
 
-        const { name, email, phone, subject, message, type, propertyId } = body;
+        const { name, email, phone, subject, message, type, propertyId, startTime, verificationToken } = body;
 
-        // Validation
+        // Basic validation
         if (!name || !email || !phone || !subject || !message) {
             return NextResponse.json(
                 { error: 'Name, email, phone, subject, and message are required' },
@@ -105,10 +106,55 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Email validation (format and disposable email check)
+        const emailValidation = validateEmail(email);
+        if (!emailValidation.valid) {
+            return NextResponse.json(
+                { error: emailValidation.message },
+                { status: 400 }
+            );
+        }
+
+        // Human verification (check form fill time)
+        if (startTime) {
+            const humanVerification = verifyHumanSubmission({
+                startTime: parseInt(startTime),
+                endTime: Date.now(),
+            });
+
+            if (!humanVerification.verified) {
+                return NextResponse.json(
+                    { error: humanVerification.message },
+                    { status: 400 }
+                );
+            }
+        }
+
+        // Rate limiting - max 3 submissions per hour per email
+        const rateLimitCheck = checkRateLimit(email.toLowerCase(), 3, 3600000);
+        if (!rateLimitCheck.allowed) {
+            return NextResponse.json(
+                { error: rateLimitCheck.message },
+                { status: 429 }
+            );
+        }
+
+        // Additional rate limiting by IP (if available)
+        const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+        if (ip !== 'unknown') {
+            const ipRateLimitCheck = checkRateLimit(ip, 5, 3600000);
+            if (!ipRateLimitCheck.allowed) {
+                return NextResponse.json(
+                    { error: 'Too many requests from this location. Please try again later.' },
+                    { status: 429 }
+                );
+            }
+        }
+
         // Create inquiry
         const inquiry = await Inquiry.create({
             name,
-            email,
+            email: email.toLowerCase(),
             phone,
             subject,
             message,
@@ -119,7 +165,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(
             {
-                message: 'Inquiry submitted successfully! We will get back to you soon.',
+                message: 'Inquiry submitted successfully! We will get back to you soon via email.',
                 inquiry: {
                     _id: inquiry._id,
                     subject: inquiry.subject,

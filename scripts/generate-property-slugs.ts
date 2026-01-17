@@ -47,3 +47,5 @@ async function generatePropertySlugs() {
 // Run the script
 generatePropertySlugs();
 
+
+
