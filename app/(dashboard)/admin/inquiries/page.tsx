@@ -292,7 +292,7 @@ export default function AdminInquiriesPage() {
                                         <h2 className="text-lg font-bold text-gray-900">{selectedInquiry.subject}</h2>
                                         {selectedInquiry.property && (
                                             <Link 
-                                                href={`/properties/${selectedInquiry.property._id}`}
+                                                href={`/properties/${selectedInquiry.property.slug || selectedInquiry.property._id}`}
                                                 target="_blank"
                                                 className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors block"
                                             >

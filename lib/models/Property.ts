@@ -73,6 +73,7 @@ export interface IProperty extends Document {
     bathrooms?: number;
     features?: string[];
     images: IPropertyImage[];
+    videoUrl?: string;
     location: ILocation;
     owner?: mongoose.Types.ObjectId;
     isFeatured: boolean;
@@ -142,7 +143,6 @@ const PropertySchema: Schema<IProperty> = new Schema(
         slug: {
             type: String,
             unique: true,
-            index: true,
         },
         name: {
             type: String,
@@ -203,6 +203,10 @@ const PropertySchema: Schema<IProperty> = new Schema(
             trim: true,
         }],
         images: [PropertyImageSchema],
+        videoUrl: {
+            type: String,
+            trim: true,
+        },
         location: {
             type: LocationSchema,
             required: true,
@@ -266,9 +270,7 @@ PropertySchema.pre('save', async function (next) {
     next();
 });
 
-// Indexes for faster queries
-PropertySchema.index({ propertyId: 1 });
-PropertySchema.index({ slug: 1 });
+// Indexes for faster queries (propertyId and slug already have unique indexes)
 PropertySchema.index({ propertyType: 1 });
 PropertySchema.index({ status: 1 });
 PropertySchema.index({ listingType: 1 });

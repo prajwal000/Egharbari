@@ -258,7 +258,7 @@ export default function AdminPropertiesPage() {
                                         <td className="px-4 py-3">
                                             <div className="flex items-center justify-end gap-2">
                                                 <Link
-                                                    href={`/properties/${property._id}`}
+                                                    href={`/properties/${property.slug || property._id}`}
                                                     className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                                                     title="View"
                                                 >
@@ -328,6 +328,8 @@ export default function AdminPropertiesPage() {
         </div>
     );
 }
+
+
 
 
 

@@ -71,6 +71,7 @@ export interface PropertyData {
     bathrooms?: number;
     features?: string[];
     images: PropertyImageData[];
+    videoUrl?: string;
     location: LocationData;
     owner?: string;
     isFeatured: boolean;

@@ -80,6 +80,7 @@ export async function PATCH(
             bedrooms,
             bathrooms,
             features,
+            videoUrl,
             newImages, // New images to upload (base64)
             removeImages, // Public IDs of images to remove
             location,
@@ -132,6 +133,7 @@ export async function PATCH(
         if (bedrooms !== undefined) property.bedrooms = bedrooms;
         if (bathrooms !== undefined) property.bathrooms = bathrooms;
         if (features) property.features = features;
+        if (videoUrl !== undefined) property.videoUrl = videoUrl;
         if (location) property.location = location;
         if (typeof isFeatured === 'boolean') property.isFeatured = isFeatured;
         if (typeof isActive === 'boolean') property.isActive = isActive;

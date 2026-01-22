@@ -130,6 +130,7 @@ export async function POST(request: NextRequest) {
             bedrooms,
             bathrooms,
             features,
+            videoUrl,
             images, // Array of base64 strings
             location,
             isFeatured,
@@ -167,6 +168,7 @@ export async function POST(request: NextRequest) {
             bedrooms,
             bathrooms,
             features: features || [],
+            videoUrl,
             images: uploadedImages,
             location,
             isFeatured: isFeatured || false,

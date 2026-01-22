@@ -122,3 +122,6 @@ export default function FavoriteButton({ propertyId, size = 'md', showText = fal
     );
 }
 
+
+
+

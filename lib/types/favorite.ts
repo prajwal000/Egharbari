@@ -8,3 +8,6 @@ export interface FavoriteData {
     createdAt: string;
 }
 
+
+
+

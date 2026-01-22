@@ -34,6 +34,7 @@ export interface ReplyData {
 export interface InquiryPropertyData {
     _id: string;
     propertyId: string;
+    slug: string;
     name: string;
     location?: {
         district: string;

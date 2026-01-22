@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import dbConnect from '@/lib/db/mongodb';
+import dbConnect from '@/lib/db';
 import Favorite from '@/lib/models/Favorite';
 
 /**
@@ -44,4 +44,6 @@ export async function GET(request: NextRequest) {
         );
     }
 }
+
+
 

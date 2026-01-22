@@ -41,3 +41,6 @@ const Favorite = mongoose.models.Favorite || mongoose.model<IFavorite>('Favorite
 
 export default Favorite;
 
+
+
+

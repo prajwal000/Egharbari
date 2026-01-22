@@ -30,6 +30,7 @@ interface FormData {
     bedrooms: string;
     bathrooms: string;
     features: string;
+    videoUrl: string;
     address: string;
     district: string;
     city: string;
@@ -62,6 +63,7 @@ export default function PropertyForm({ property, isEditing = false }: PropertyFo
         bedrooms: property?.bedrooms?.toString() || '',
         bathrooms: property?.bathrooms?.toString() || '',
         features: property?.features?.join(', ') || '',
+        videoUrl: property?.videoUrl || '',
         address: property?.location?.address || '',
         district: property?.location?.district || '',
         city: property?.location?.city || '',
@@ -150,6 +152,7 @@ export default function PropertyForm({ property, isEditing = false }: PropertyFo
                 features: formData.features
                     ? formData.features.split(',').map((f) => f.trim()).filter(Boolean)
                     : [],
+                videoUrl: formData.videoUrl || undefined,
                 location: {
                     address: formData.address,
                     district: formData.district,
@@ -519,6 +522,61 @@ export default function PropertyForm({ property, isEditing = false }: PropertyFo
                 </div>
             </div>
 
+            {/* Property Video */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Property Video</h3>
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Video URL (YouTube, Vimeo, etc.)
+                        </label>
+                        <input
+                            type="url"
+                            name="videoUrl"
+                            value={formData.videoUrl}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9ac842] focus:border-transparent outline-none"
+                            placeholder="https://www.youtube.com/watch?v=..."
+                        />
+                        <p className="mt-2 text-sm text-gray-500">
+                            Add a YouTube or Vimeo video URL to showcase your property. The video will appear in the property gallery.
+                        </p>
+                    </div>
+                    {formData.videoUrl && (
+                        <div className="mt-4">
+                            <p className="text-sm font-medium text-gray-700 mb-2">Video Preview:</p>
+                            <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                                {formData.videoUrl.includes('youtube.com') || formData.videoUrl.includes('youtu.be') ? (
+                                    <iframe
+                                        src={`https://www.youtube.com/embed/${
+                                            formData.videoUrl.includes('youtube.com')
+                                                ? new URL(formData.videoUrl).searchParams.get('v')
+                                                : formData.videoUrl.split('youtu.be/')[1]?.split('?')[0]
+                                        }`}
+                                        title="Property Video Preview"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                        className="w-full h-full"
+                                    />
+                                ) : formData.videoUrl.includes('vimeo.com') ? (
+                                    <iframe
+                                        src={`https://player.vimeo.com/video/${formData.videoUrl.split('vimeo.com/')[1]?.split('?')[0]}`}
+                                        title="Property Video Preview"
+                                        allow="autoplay; fullscreen; picture-in-picture"
+                                        allowFullScreen
+                                        className="w-full h-full"
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-gray-500">
+                                        <p>Video preview not available</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* Actions */}
             <div className="flex items-center justify-end gap-4">
                 <button
@@ -554,6 +612,8 @@ export default function PropertyForm({ property, isEditing = false }: PropertyFo
         </form>
     );
 }
+
+
 
 
 

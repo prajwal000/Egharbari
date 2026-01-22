@@ -19,7 +19,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
     const { data: session } = useSession();
     const [property, setProperty] = useState<PropertyData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [selectedImage, setSelectedImage] = useState(0);
+    const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
     const [showInquiryForm, setShowInquiryForm] = useState(false);
     const [inquirySubmitting, setInquirySubmitting] = useState(false);
     const [inquiryStatus, setInquiryStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
@@ -30,6 +30,22 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         phone: '',
         message: '',
     });
+
+    // Helper function to extract YouTube video ID
+    const getYouTubeVideoId = (url: string): string | null => {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
+
+    // Helper function to extract Vimeo video ID
+    const getVimeoVideoId = (url: string): string | null => {
+        if (!url) return null;
+        const regExp = /vimeo.com\/(\d+)/;
+        const match = url.match(regExp);
+        return match ? match[1] : null;
+    };
 
     useEffect(() => {
         const fetchProperty = async () => {
@@ -130,7 +146,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-gray-50 pt-32  pb-10">
             <div className="max-w-7xl mx-auto px-4">
                 {/* Breadcrumb */}
                 <nav className="mb-6 text-sm">
@@ -146,13 +162,38 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Main Content */}
                     <div className="lg:col-span-2 space-y-6">
-                        {/* Image Gallery */}
+                        {/* Image & Video Gallery */}
                         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                            {/* Main Image */}
+                            {/* Main Media Display */}
                             <div className="relative aspect-[16/10] bg-gray-200">
-                                {property.images.length > 0 ? (
+                                {/* Check if current selection is video (last index if video exists) */}
+                                {property.videoUrl && selectedMediaIndex === property.images.length ? (
+                                    <div className="w-full h-full">
+                                        {getYouTubeVideoId(property.videoUrl) ? (
+                                            <iframe
+                                                src={`https://www.youtube.com/embed/${getYouTubeVideoId(property.videoUrl)}`}
+                                                title={property.name}
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                                className="w-full h-full"
+                                            />
+                                        ) : getVimeoVideoId(property.videoUrl) ? (
+                                            <iframe
+                                                src={`https://player.vimeo.com/video/${getVimeoVideoId(property.videoUrl)}`}
+                                                title={property.name}
+                                                allow="autoplay; fullscreen; picture-in-picture"
+                                                allowFullScreen
+                                                className="w-full h-full"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                <p>Video not available</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : property.images.length > 0 ? (
                                     <Image
-                                        src={property.images[selectedImage]?.url || property.images[0].url}
+                                        src={property.images[selectedMediaIndex]?.url || property.images[0].url}
                                         alt={property.name}
                                         fill
                                         className="object-cover"
@@ -164,30 +205,35 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                                         </svg>
                                     </div>
                                 )}
-                                {/* Badges */}
-                                <div className="absolute top-4 left-4 flex gap-2">
-                                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(property.status)}`}>
-                                        {PROPERTY_STATUS_LABELS[property.status]}
-                                    </span>
-                                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#9ac842] text-white">
-                                        {LISTING_TYPE_LABELS[property.listingType]}
-                                    </span>
-                                </div>
-                                {/* Favorite Button */}
-                                <div className="absolute top-4 right-4">
-                                    <FavoriteButton propertyId={property._id} size="lg" />
-                                </div>
+                                {/* Badges - Only show on images, not video */}
+                                {(!property.videoUrl || selectedMediaIndex !== property.images.length) && (
+                                    <>
+                                        <div className="absolute top-4 left-4 flex gap-2">
+                                            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(property.status)}`}>
+                                                {PROPERTY_STATUS_LABELS[property.status]}
+                                            </span>
+                                            <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#9ac842] text-white">
+                                                {LISTING_TYPE_LABELS[property.listingType]}
+                                            </span>
+                                        </div>
+                                        {/* Favorite Button */}
+                                        <div className="absolute top-4 right-4">
+                                            <FavoriteButton propertyId={property._id} size="lg" />
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Thumbnails */}
-                            {property.images.length > 1 && (
+                            {(property.images.length > 1 || property.videoUrl) && (
                                 <div className="flex gap-2 p-4 overflow-x-auto">
+                                    {/* Image Thumbnails */}
                                     {property.images.map((image, index) => (
                                         <button
-                                            key={index}
-                                            onClick={() => setSelectedImage(index)}
+                                            key={`img-${index}`}
+                                            onClick={() => setSelectedMediaIndex(index)}
                                             className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                                                selectedImage === index ? 'border-[#9ac842]' : 'border-transparent'
+                                                selectedMediaIndex === index ? 'border-[#9ac842]' : 'border-transparent'
                                             }`}
                                         >
                                             <Image
@@ -199,6 +245,38 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                                             />
                                         </button>
                                     ))}
+                                    {/* Video Thumbnail */}
+                                    {property.videoUrl && (
+                                        <button
+                                            key="video"
+                                            onClick={() => setSelectedMediaIndex(property.images.length)}
+                                            className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-colors relative ${
+                                                selectedMediaIndex === property.images.length ? 'border-[#9ac842]' : 'border-transparent'
+                                            }`}
+                                        >
+                                            {getYouTubeVideoId(property.videoUrl) ? (
+                                                <Image
+                                                    src={`https://img.youtube.com/vi/${getYouTubeVideoId(property.videoUrl)}/default.jpg`}
+                                                    alt="Video"
+                                                    width={80}
+                                                    height={64}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                                                    <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M8 5v14l11-7z" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                            {/* Play Icon Overlay */}
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M8 5v14l11-7z" />
+                                                </svg>
+                                            </div>
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>

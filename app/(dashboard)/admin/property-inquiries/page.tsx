@@ -19,6 +19,7 @@ interface PropertyInquiry {
     property?: {
         _id: string;
         propertyId: string;
+        slug: string;
         name: string;
         location: { district: string };
         images: { url: string }[];
@@ -276,7 +277,7 @@ export default function PropertyInquiriesPage() {
                             {selectedInquiry.property && (
                                 <div className="p-4 border-b border-gray-100 bg-gray-50">
                                     <Link
-                                        href={`/properties/${selectedInquiry.property._id}`}
+                                        href={`/properties/${selectedInquiry.property.slug || selectedInquiry.property._id}`}
                                         className="flex items-center gap-3 hover:bg-gray-100 -m-2 p-2 rounded-lg transition-colors"
                                     >
                                         <div className="w-20 h-14 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
