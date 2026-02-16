@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configure Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -12,11 +11,8 @@ export interface UploadResult {
     publicId: string;
 }
 
-/**
- * Upload image to Cloudinary
- */
 export async function uploadImage(
-    file: string, // base64 string or URL
+    file: string, 
     folder: string = 'egharbari/properties'
 ): Promise<UploadResult> {
     try {
@@ -40,9 +36,6 @@ export async function uploadImage(
     }
 }
 
-/**
- * Upload multiple images to Cloudinary
- */
 export async function uploadMultipleImages(
     files: string[],
     folder: string = 'egharbari/properties'
@@ -51,9 +44,6 @@ export async function uploadMultipleImages(
     return Promise.all(uploadPromises);
 }
 
-/**
- * Delete image from Cloudinary
- */
 export async function deleteImage(publicId: string): Promise<boolean> {
     try {
         const result = await cloudinary.uploader.destroy(publicId);
@@ -64,9 +54,6 @@ export async function deleteImage(publicId: string): Promise<boolean> {
     }
 }
 
-/**
- * Delete multiple images from Cloudinary
- */
 export async function deleteMultipleImages(publicIds: string[]): Promise<void> {
     try {
         await cloudinary.api.delete_resources(publicIds);

@@ -3,9 +3,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import dbConnect from './db';
 import User, { UserRole } from './models/User';
 
-/**
- * NextAuth.js configuration
- */
 export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
@@ -79,16 +76,10 @@ export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
 };
 
-/**
- * Check if user has admin role
- */
 export function isAdmin(role: UserRole): boolean {
     return role === UserRole.ADMIN;
 }
 
-/**
- * Check if user has any of the allowed roles
- */
 export function hasRole(userRole: UserRole, allowedRoles: UserRole[]): boolean {
     return allowedRoles.includes(userRole);
 }
